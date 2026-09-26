@@ -1,3 +1,4 @@
+import { uploadResume } from "../services/api";
 import { useNavigate } from "react-router-dom";
 import { FiArrowLeft, FiFileText } from "react-icons/fi";
 import ResumeUpload from "../components/ResumeUpload";
@@ -5,11 +6,19 @@ import ResumeUpload from "../components/ResumeUpload";
 function Upload() {
   const navigate = useNavigate();
 
-  const handleAnalyze = (file: File) => {
-    console.log("Selected resume:", file);
+    const handleAnalyze = async (file: File) => {
+      try {
+        console.log("Starting upload...");
 
-    navigate("/dashboard");
-  };
+        const result = await uploadResume(file);
+
+        console.log("Upload successful:", result);
+
+        navigate("/dashboard");
+      } catch (error) {
+        console.error("Upload failed:", error);
+      }
+    };
 
   return (
     <div className="min-h-[calc(100vh-73px)] px-6 py-12">
