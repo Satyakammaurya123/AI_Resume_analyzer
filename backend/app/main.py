@@ -1,11 +1,17 @@
 from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.services.resume_parser import extract_text_from_pdf
+from app.services.resume_analyzer import analyze_resume
+
+
 app = FastAPI(
     title="AI Resume Analyzer API",
     description="Backend API for analyzing resumes",
     version="1.0.0",
 )
+
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5173"],
@@ -47,9 +53,18 @@ async def upload_resume(file: UploadFile = File(...)):
             detail="File size must be less than 5 MB.",
         )
 
+    if file.content_type == "application/pdf":
+        extracted_text = extract_text_from_pdf(file_content)
+    else:
+        extracted_text = ""
+
+    analysis = analyze_resume(extracted_text)
+
     return {
         "message": "Resume uploaded successfully",
         "filename": file.filename,
         "content_type": file.content_type,
         "size_in_bytes": len(file_content),
+        "extracted_text": extracted_text,
+        "analysis": analysis,
     }
